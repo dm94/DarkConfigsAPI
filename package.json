@@ -1,7 +1,7 @@
 {
-  "name": "fastify-boilerplate",
+  "name": "dark-configs-api",
   "version": "1.0.0",
-  "description": "Fastify boilerplate with typescript, tests and swagger",
+  "description": "API for https://github.com/dm94/DarkConfigs",
   "type": "module",
   "scripts": {
     "lint": "eslint .",
@@ -23,17 +23,16 @@
     "fastify",
     "typescript"
   ],
-  "author": "YOUR-NAME",
+  "author": "Dm94Dani",
   "bugs": {
-    "url": "https://github.com/dm94/fastify-boilerplate/issues"
+    "url": "https://github.com/dm94/DarkConfigsAPI/issues"
   },
-  "homepage": "https://github.com/dm94/fastify-boilerplate",
+  "homepage": "https://github.com/dm94/DarkConfigsAPI",
   "dependencies": {
     "@fastify/autoload": "^5.7.1",
     "@fastify/cors": "^8.2.0",
     "@fastify/jwt": "^6.6.0",
     "@fastify/mongodb": "^6.2.0",
-    "@fastify/mysql": "^4.1.0",
     "@fastify/rate-limit": "^7.6.0",
     "@fastify/swagger": "^8.3.1",
     "@fastify/swagger-ui": "^1.4.0",

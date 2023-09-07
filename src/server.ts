@@ -2,11 +2,9 @@ import fastify from 'fastify';
 import config, { NodeEnv } from './plugins/config.js';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
-import jwt from '@fastify/jwt';
 import autoLoad from '@fastify/autoload';
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
-import mysql from '@fastify/mysql';
 import mongodb from '@fastify/mongodb';
 import { schema } from './utils/swagger';
 import { fileURLToPath } from 'url';
@@ -34,12 +32,6 @@ await server.register(cors, {
   // put your options here
 });
 
-if (server.config.MYSQL_CONNECTION) {
-  await server.register(mysql, {
-    connectionString: server.config.MYSQL_CONNECTION,
-  });
-}
-
 if (server.config.MONGODB_CONNECTION) {
   await server.register(mongodb, {
     forceClose: true,
@@ -47,21 +39,9 @@ if (server.config.MONGODB_CONNECTION) {
   })
 }
 
-await server.register(jwt, {
-  secret: server.config.JWT_SECRET,
-});
-
-server.decorate('authenticate', async function (request, reply) {
-  try {
-    await request.jwtVerify();
-  } catch (err) {
-    reply.send(err);
-  }
-});
-
 await server.register(rateLimit, {
   global: true,
-  max: 100,
+  max: 10,
   timeWindow: '1 minute',
   allowList: ['127.0.0.1'],
 });
@@ -86,6 +66,7 @@ if (server.config.NODE_ENV === NodeEnv.development) {
 
 await server.register(autoLoad, {
   dir: join(__dirname, 'routes'),
+  routeParams: true,
 });
 
 await server.ready();
