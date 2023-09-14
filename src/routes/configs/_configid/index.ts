@@ -26,17 +26,34 @@ const routes: FastifyPluginAsync = async (server) => {
       },
     },
     async (request, reply) => {
-      return reply.code(200).send({
-        configId: "dfs3w4r",
-        name: "Pala",
-        description: "Para paladio",
-        karma: 10,
-        downloads: 100,
-        features: [
-          "PalladiumModule",
-          "DefenseModule"
-        ]
-      });
+      if (!request.params.configid) {
+        reply.code(400);
+        return new Error('Missing Config ID');
+      }
+
+      try {
+        const configCollection = server.mongo.client.db('dark').collection('configs');
+        const idConfig = new server.mongo.ObjectId(request.params.configid);
+
+        const configInfo = await configCollection.findOne({ _id: idConfig }, { projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 } });
+
+        if (configInfo) {
+          return reply.code(200).send({
+            configId: configInfo._id.toString(),
+            name: configInfo.name,
+            description: configInfo.description,
+            karma: configInfo.karma,
+            downloads: configInfo.downloads,
+            features: configInfo.features,
+          });
+        } else {
+          return reply.code(404).send();
+        }
+
+      } catch (error) {
+        console.log(error);
+        return reply.code(503).send();
+      }
     },
   );
   server.get<GetConfigRequest, { Reply: ConfigFile }>(
@@ -59,7 +76,29 @@ const routes: FastifyPluginAsync = async (server) => {
       },
     },
     async (request, reply) => {
-      return reply.code(200).send(cleanConfig(exampleConfig));
+      if (!request.params.configid) {
+        reply.code(400);
+        return new Error('Missing Config ID');
+      }
+
+      try {
+        const configCollection = server.mongo.client.db('dark').collection('configs');
+        const idConfig = new server.mongo.ObjectId(request.params.configid);
+
+        const configInfo = await configCollection.findOne({ _id: idConfig }, { projection: { config: 1 } });
+
+        if (configInfo?.config) {
+          const configCleaned = cleanConfig(configInfo.config);
+
+          return reply.code(200).send(configCleaned);
+        } else {
+          return reply.code(404).send();
+        }
+
+      } catch (error) {
+        console.log(error);
+        return reply.code(503).send();
+      }
     },
   );
 };

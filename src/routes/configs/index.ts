@@ -42,10 +42,32 @@ const routes: FastifyPluginAsync = async (server) => {
       try {
         const configCollection = server.mongo.client.db('dark').collection('configs');
 
-        /* Use the query params */
+        let limit = 10;
+        const MAX_LIMIT = 20;
+        let page = 0;
+
+        if (request.query.size) {
+          limit = request.query.size;
+        }
+        if (limit > MAX_LIMIT) {
+          limit = MAX_LIMIT;
+        }
+
+        if (request.query.page) {
+          page = request.query.page;
+        }
+
+        if (page > 0) {
+          page = page - 1;
+        }
+
+        const filterQuery = {};
+        if (request.query.search) {
+          filterQuery["$text"] = { $search: request.query.search }
+        }
 
         const data = await configCollection
-        .find({}, { projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 } })
+        .find(filterQuery, { projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 } }).skip(page * limit).limit(limit)
         .toArray();
 
         const response: ConfigInfo[] = data.map((item) => {
@@ -60,7 +82,8 @@ const routes: FastifyPluginAsync = async (server) => {
         });
 
         return reply.code(200).send(response);
-      } catch {
+      } catch (error) {
+        console.log(error);
         return reply.code(503).send();
       }
     },
@@ -95,6 +118,12 @@ const routes: FastifyPluginAsync = async (server) => {
         const config = request.body.config as ConfigFile;
 
         const configCleaned = cleanConfig(config);
+
+        if (!configCleaned) {
+          return reply.code(400).send({
+            message: "Missing valid config"
+          });
+        }
 
         const dataToUpload: ConfigDTO = {
           name: request.body.name ?? "",
