@@ -1,9 +1,9 @@
 import { ConfigFile, ConfigFileSchema } from '@/types/configfile';
 import { FastifyPluginAsync } from 'fastify';
 import { ConfigInfo, ConfigInfoSchema } from '@/types/configinfo';
-import { exampleConfig } from '@/utils/example';
 import { cleanConfig } from '@/utils/configcleaner';
 import { GetConfigRequest } from '@/types/requests/configs';
+import { addDownloads } from '@/services/adddownload';
 
 const routes: FastifyPluginAsync = async (server) => {
   server.get<GetConfigRequest, { Reply: ConfigInfo }>(
@@ -59,6 +59,7 @@ const routes: FastifyPluginAsync = async (server) => {
   server.get<GetConfigRequest, { Reply: ConfigFile }>(
     '/download',
     {
+      onRequest: [ (request) => addDownloads(server, request)],
       schema: {
         description: 'Return the config file',
         summary: 'getConfigFile',
