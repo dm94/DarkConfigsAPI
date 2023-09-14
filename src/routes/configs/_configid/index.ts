@@ -2,8 +2,9 @@ import { ConfigFile, ConfigFileSchema } from '@/types/configfile';
 import { FastifyPluginAsync } from 'fastify';
 import { ConfigInfo, ConfigInfoSchema } from '@/types/configinfo';
 import { cleanConfig } from '@/utils/configcleaner';
-import { GetConfigRequest } from '@/types/requests/configs';
+import { GetConfigRequest, TypeKarmaVote, UpdateKarmaRequest } from '@/types/requests/configs';
 import { addDownloads } from '@/services/adddownload';
+import { Type } from '@sinclair/typebox';
 
 const routes: FastifyPluginAsync = async (server) => {
   server.get<GetConfigRequest, { Reply: ConfigInfo }>(
@@ -96,6 +97,78 @@ const routes: FastifyPluginAsync = async (server) => {
           return reply.code(404).send();
         }
 
+      } catch (error) {
+        console.log(error);
+        return reply.code(503).send();
+      }
+    },
+  );
+  server.post<UpdateKarmaRequest>(
+    '/vote',
+    {
+      schema: {
+        description: 'Update the config karma',
+        summary: 'updateKarma',
+        operationId: 'updateKarma',
+        tags: ['configs'],
+        params: {
+            type: 'object',
+            properties: {
+              configid: { type: 'string' },
+            },
+        },
+        querystring: {
+          type: 'object',
+          required: ["vote"],
+          properties: {
+            vote: {
+              type: 'string',
+              enum: Object.values(TypeKarmaVote)
+            },
+          },
+        },
+        response: {
+          200: Type.Object({
+            message: Type.String(),
+          }),
+        },
+      },
+    },
+    async (request, reply) => {
+      if (!request.params.configid) {
+        reply.code(400);
+        return new Error('Missing Config ID');
+      }
+
+      if (request.query.vote !== TypeKarmaVote.DOWN && request.query.vote !== TypeKarmaVote.UP) {
+        reply.code(400);
+        return new Error('Incorrect type');
+      }
+
+      try {
+        const configCollection = server.mongo.client.db('dark').collection('configs');
+        const idConfig = new server.mongo.ObjectId(request.params.configid);
+
+        let karma = 0;
+        const configInfo = await configCollection.findOne({ _id: idConfig }, { projection: { karma: 1 } });
+
+        if (configInfo) {
+          karma = configInfo.karma;
+          if (request.query.vote === TypeKarmaVote.DOWN) {
+            await configCollection.updateOne({ _id: idConfig }, {$set: {
+              karma: karma - 1,
+            }}, { upsert: true });
+          } else if (request.query.vote === TypeKarmaVote.UP) {
+            await configCollection.updateOne({ _id: idConfig }, {$set: {
+              karma: karma + 1,
+            }}, { upsert: true });
+          }
+          return reply.code(200).send({
+            message: "Success"
+          });
+        } else {
+          return reply.code(404).send();
+        }
       } catch (error) {
         console.log(error);
         return reply.code(503).send();

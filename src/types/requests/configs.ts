@@ -22,3 +22,17 @@ export interface GetConfigRequest extends RequestGenericInterface {
     configid: string;
   };
 }
+
+export interface UpdateKarmaRequest extends RequestGenericInterface {
+  Params: {
+    configid: string;
+  };
+  Querystring: {
+    vote: string;
+  }
+}
+
+export enum TypeKarmaVote {
+  UP = "UP",
+  DOWN = "DOWN"
+}

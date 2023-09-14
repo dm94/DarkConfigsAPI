@@ -119,7 +119,7 @@ const routes: FastifyPluginAsync = async (server) => {
 
         const configCleaned = cleanConfig(config);
 
-        if (!configCleaned) {
+        if (!configCleaned || Object.keys(configCleaned).length <= 3) {
           return reply.code(400).send({
             message: "Missing valid config"
           });
