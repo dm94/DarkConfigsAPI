@@ -41,7 +41,7 @@ if (server.config.MONGODB_CONNECTION) {
 
 await server.register(rateLimit, {
   global: true,
-  max: 10,
+  max: 100,
   timeWindow: '1 minute',
   allowList: ['127.0.0.1'],
 });
