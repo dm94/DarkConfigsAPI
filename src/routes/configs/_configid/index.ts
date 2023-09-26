@@ -1,4 +1,4 @@
-import { ConfigFile, ConfigFileSchema } from '@/types/configfile';
+import { ConfigFileSchema } from '@/types/configfile';
 import { FastifyPluginAsync } from 'fastify';
 import { ConfigInfo, ConfigInfoSchema } from '@/types/configinfo';
 import { cleanConfig } from '@/utils/configcleaner';
@@ -53,13 +53,21 @@ const routes: FastifyPluginAsync = async (server) => {
 
       } catch (error) {
         console.log(error);
-        return reply.code(503).send();
+        return reply.code(503).send({
+          message: "Error: Internal error"
+        });
       }
     },
   );
-  server.get<GetConfigRequest, { Reply: ConfigFile }>(
+  server.get<GetConfigRequest>(
     '/download',
     {
+      config: {
+        rateLimit: {
+          max: 5,
+          timeWindow: '1 minute'
+        }
+      },
       onRequest: [ (request) => addDownloads(server, request)],
       schema: {
         description: 'Return the config file',
@@ -79,8 +87,9 @@ const routes: FastifyPluginAsync = async (server) => {
     },
     async (request, reply) => {
       if (!request.params.configid) {
-        reply.code(400);
-        return new Error('Missing Config ID');
+        return reply.code(400).send({
+          message: "Missing Config ID"
+        });
       }
 
       try {
@@ -93,19 +102,28 @@ const routes: FastifyPluginAsync = async (server) => {
           const configCleaned = cleanConfig(configInfo.config);
 
           return reply.code(200).send(configCleaned);
-        } else {
-          return reply.code(404).send();
         }
 
+        return reply.code(404).send({
+          message: "Error: Config not found"
+        });
       } catch (error) {
         console.log(error);
-        return reply.code(503).send();
+        return reply.code(503).send({
+          message: "Error: Internal error"
+        });
       }
     },
   );
   server.post<UpdateKarmaRequest>(
     '/vote',
     {
+      config: {
+        rateLimit: {
+          max: 2,
+          timeWindow: '1 days'
+        }
+      },
       schema: {
         description: 'Update the config karma',
         summary: 'updateKarma',
@@ -128,21 +146,21 @@ const routes: FastifyPluginAsync = async (server) => {
           },
         },
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }),
+          200: Type.Object({}),
         },
       },
     },
     async (request, reply) => {
       if (!request.params.configid) {
-        reply.code(400);
-        return new Error('Missing Config ID');
+        return reply.code(400).send({
+          message: "Error: Missing Config ID"
+        });
       }
 
       if (request.query.vote !== TypeKarmaVote.DOWN && request.query.vote !== TypeKarmaVote.UP) {
-        reply.code(400);
-        return new Error('Incorrect type');
+        return reply.code(400).send({
+          message: "Error: Incorrect type"
+        });
       }
 
       try {
@@ -163,15 +181,17 @@ const routes: FastifyPluginAsync = async (server) => {
               karma: karma + 1,
             }}, { upsert: true });
           }
-          return reply.code(200).send({
-            message: "Success"
-          });
+          return reply.code(200).send({});
         } else {
-          return reply.code(404).send();
+          return reply.code(400).send({
+            message: "Error: Config not found"
+          });
         }
       } catch (error) {
         console.log(error);
-        return reply.code(503).send();
+        return reply.code(503).send({
+          message: "Error: Internal error"
+        });
       }
     },
   );

@@ -84,7 +84,9 @@ const routes: FastifyPluginAsync = async (server) => {
         return reply.code(200).send(response);
       } catch (error) {
         console.log(error);
-        return reply.code(503).send();
+        return reply.code(503).send({
+          message: "Error: Internal error"
+        });
       }
     },
   );
@@ -111,7 +113,9 @@ const routes: FastifyPluginAsync = async (server) => {
     },
     async (request, reply) => {
       if (!request?.body) {
-        return reply.code(400).send();
+        return reply.code(400).send({
+          message: "Missing valid config"
+        });
       }
 
       try {
@@ -146,7 +150,9 @@ const routes: FastifyPluginAsync = async (server) => {
           features:  dataToUpload.features
         });
       } catch {
-        return reply.code(503).send();
+        return reply.code(503).send({
+          message: "Error: Internal error"
+        });
       }
     },
   );
