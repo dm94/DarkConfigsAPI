@@ -43,7 +43,7 @@ await server.register(rateLimit, {
   global: true,
   max: 100,
   timeWindow: '1 minute',
-  allowList: ['127.0.0.1'],
+  allowList: [],
 });
 
 /* 404 error handling */

@@ -90,9 +90,15 @@ const routes: FastifyPluginAsync = async (server) => {
       }
     },
   );
-  server.post<UploadConfigRequest, { Reply: ConfigInfo }>(
+  server.post<UploadConfigRequest>(
     '/',
     {
+      config: {
+        rateLimit: {
+          max: 2,
+          timeWindow: '1 minute'
+        }
+      },
       schema: {
         description: 'Add a new config',
         summary: 'uploadConfigFile',
