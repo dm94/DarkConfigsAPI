@@ -67,7 +67,7 @@ const routes: FastifyPluginAsync = async (server) => {
         }
 
         const data = await configCollection
-        .find(filterQuery, { projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 } }).skip(page * limit).limit(limit)
+        .find(filterQuery, { projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 } }).skip(page * limit).limit(limit).sort( { karma: -1 } )
         .toArray();
 
         const response: ConfigInfo[] = data.map((item) => {
