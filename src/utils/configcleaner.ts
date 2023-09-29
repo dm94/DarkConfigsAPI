@@ -77,22 +77,15 @@ export const permitFeature = (key: string): boolean => {
 export const cleanConfig = (config: ConfigFile): ConfigFile => {
     const configCopy = { ...config };
 
-    configCopy["PLAYER_INFOS"] = undefined;
-    configCopy["UNRESOLVED"] = undefined;
+    delete configCopy?.["PLAYER_INFOS"];
+    delete configCopy?.["UNRESOLVED"];
+    delete configCopy?.["BOT_SETTINGS"]?.["BOT_GUI"]?.["MAIN_GUI_WINDOW"];
+    delete configCopy?.["BOT_SETTINGS"]?.["BOT_GUI"]?.["CONFIG_GUI_WINDOW"];
+    delete configCopy?.["BOT_SETTINGS"]?.["CUSTOM_BACKGROUND"]?.["IMAGE"];
 
-    if (configCopy?.["BOT_SETTINGS"]?.["BOT_GUI"]?.["MAIN_GUI_WINDOW"]) {
-        configCopy["BOT_SETTINGS"]["BOT_GUI"]["MAIN_GUI_WINDOW"] = undefined;
-    }
-    if (configCopy?.["BOT_SETTINGS"]?.["BOT_GUI"]?.["CONFIG_GUI_WINDOW"]) {
-        configCopy["BOT_SETTINGS"]["BOT_GUI"]["CONFIG_GUI_WINDOW"] = undefined;
-    }
-    if (configCopy?.["BOT_SETTINGS"]?.["CUSTOM_BACKGROUND"]?.["IMAGE"]) {
-        configCopy["BOT_SETTINGS"]["CUSTOM_BACKGROUND"]["IMAGE"] = undefined;
-    }
     if (configCopy?.["BOT_SETTINGS"]?.["BOT_GUI"]?.["LOCALE"]) {
         configCopy["BOT_SETTINGS"]["BOT_GUI"]["LOCALE"] = "en";
     }
-
 
     return cleanDisabledFeatures(configCopy);
 }
