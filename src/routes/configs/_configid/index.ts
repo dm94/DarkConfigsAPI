@@ -120,8 +120,8 @@ const routes: FastifyPluginAsync = async (server) => {
     {
       config: {
         rateLimit: {
-          max: 2,
-          timeWindow: '1 days'
+          max: 1,
+          timeWindow: '12 hours'
         }
       },
       schema: {
