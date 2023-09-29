@@ -6,7 +6,8 @@ export const ConfigInfoSchema = Type.Object({
   description: Type.Optional(Type.String()),
   karma: Type.Integer(),
   downloads: Type.Integer(),
-  features: Type.Array(Type.String())
+  features: Type.Array(Type.String()),
+  hidden: Type.Optional(Type.Boolean()),
 });
 
 export type ConfigInfo = Static<typeof ConfigInfoSchema>;

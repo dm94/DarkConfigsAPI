@@ -8,4 +8,5 @@ export type ConfigDTO = {
   downloads: number;
   features: string[];
   config: ConfigFile;
+  hidden?: boolean;
 }

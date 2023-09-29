@@ -45,7 +45,7 @@ const routes: FastifyPluginAsync = async (server) => {
             description: configInfo.description,
             karma: configInfo.karma,
             downloads: configInfo.downloads,
-            features: configInfo.features,
+            features: configInfo.features
           });
         } else {
           return reply.code(404).send();

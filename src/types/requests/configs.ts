@@ -5,6 +5,7 @@ export interface UploadConfigRequest extends RequestGenericInterface {
     name: string;
     description?: string;
     config: object;
+    hidden?: boolean;
   };
 }
 

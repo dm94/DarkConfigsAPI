@@ -66,6 +66,8 @@ const routes: FastifyPluginAsync = async (server) => {
           filterQuery["$text"] = { $search: request.query.search }
         }
 
+        filterQuery["$or"] = [ { hidden: { $exists: true, $nin: [ true ] } }, { hidden: { $exists: false } } ];
+
         const data = await configCollection
         .find(filterQuery, { projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 } }).skip(page * limit).limit(limit).sort( { karma: -1 } )
         .toArray();
@@ -110,6 +112,7 @@ const routes: FastifyPluginAsync = async (server) => {
               name: { type: 'string' },
               description: { type: 'string' },
               config: { type: "object" },
+              hidden: { type: "boolean" },
             },
         },
         response: {
@@ -142,6 +145,7 @@ const routes: FastifyPluginAsync = async (server) => {
           downloads: 0,
           features: getEnabledFeatures(configCleaned),
           config: configCleaned,
+          hidden: request.body.hidden ?? false,
         }
 
         const configCollection = server.mongo.client.db('dark').collection('configs');
@@ -153,7 +157,8 @@ const routes: FastifyPluginAsync = async (server) => {
           description: dataToUpload.description,
           karma: dataToUpload.karma,
           downloads: dataToUpload.downloads,
-          features:  dataToUpload.features
+          features:  dataToUpload.features,
+          hidden:  dataToUpload.hidden ?? false,
         });
       } catch {
         return reply.code(503).send({
