@@ -24,6 +24,7 @@ const server = fastify({
   logger: {
     level: process.env.LOG_LEVEL,
   },
+  trustProxy: true,
 });
 
 await server.register(config);
