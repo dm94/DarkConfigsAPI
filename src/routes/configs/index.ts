@@ -1,6 +1,6 @@
 import { ConfigFile } from '@/types/configfile';
 import { ConfigDTO } from '@/types/mongo/config';
-import { GetConfigsRequest, UploadConfigRequest } from '@/types/requests/configs';
+import { GetConfigsRequest, OrderByRequest, UploadConfigRequest } from '@/types/requests/configs';
 import { cleanConfig, getEnabledFeatures } from '@/utils/configcleaner';
 import { Type } from '@sinclair/typebox';
 import { FastifyPluginAsync } from 'fastify';
@@ -30,6 +30,12 @@ const routes: FastifyPluginAsync = async (server) => {
             search: {
               type: 'string',
               description: 'Search by name, description or feature',
+            },
+            orderby: {
+              type: 'string',
+              description: 'Order by karma, newest or downloads',
+              enum: Object.values(OrderByRequest),
+              default: OrderByRequest.KARMA
             },
           },
         },
@@ -61,6 +67,20 @@ const routes: FastifyPluginAsync = async (server) => {
           page = page - 1;
         }
 
+        let sort = {
+          "karma": -1
+        };
+
+        if (request.query.orderby) {
+          if (request.query.orderby=== OrderByRequest.DOWNLOADS) {
+            sort = { "downloads": -1 };
+          } else if (request.query.orderby === OrderByRequest.NEWEST) {
+            sort = { "_id": -1 };
+          }  else if (request.query.orderby === OrderByRequest.KARMA) {
+            sort = { "karma": -1 };
+          }
+        }
+
         const filterQuery = {};
         if (request.query.search) {
           filterQuery["$text"] = { $search: request.query.search }
@@ -69,7 +89,7 @@ const routes: FastifyPluginAsync = async (server) => {
         filterQuery["$or"] = [ { hidden: { $exists: true, $nin: [ true ] } }, { hidden: { $exists: false } } ];
 
         const data = await configCollection
-        .find(filterQuery, { projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 } }).skip(page * limit).limit(limit).sort( { karma: -1 } )
+        .find(filterQuery, { projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 } }).skip(page * limit).limit(limit).sort(sort)
         .toArray();
 
         const response: ConfigInfo[] = data.map((item) => {

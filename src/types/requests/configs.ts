@@ -9,11 +9,18 @@ export interface UploadConfigRequest extends RequestGenericInterface {
   };
 }
 
+export enum OrderByRequest {
+  KARMA = "KARMA",
+  DOWNLOADS = "DOWNLOADS",
+  NEWEST = "NEWEST"
+}
+
 export interface GetConfigsRequest extends RequestGenericInterface {
   Querystring: {
     size?: number;
     page?: number;
     search?: string;
+    orderby?: OrderByRequest;
   };
 }
 
