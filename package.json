@@ -1,6 +1,6 @@
 {
   "name": "dark-configs-api",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "API for https://github.com/dm94/DarkConfigs",
   "type": "module",
   "scripts": {

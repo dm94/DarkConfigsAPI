@@ -158,9 +158,20 @@ const routes: FastifyPluginAsync = async (server) => {
           });
         }
 
+        let description = request.body.description ?? "";
+        let title = request.body.name ?? "";
+
+        if (description.length > 300) {
+          description = description.slice(0, 300);
+        }
+
+        if (title.length > 50) {
+          title = title.slice(0, 50);
+        }
+
         const dataToUpload: ConfigDTO = {
-          name: request.body.name ?? "",
-          description: request.body.description ?? "",
+          name: title,
+          description: description,
           karma: 0,
           downloads: 0,
           features: getEnabledFeatures(configCleaned),
