@@ -33,7 +33,7 @@ await server.register(cors, {
   methods: ['POST', 'GET', 'PUT', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  origin: ["https://darkconfigs.vercel.app/", /\.deeme\.dev$/],
+  origin: ["https://darkconfigs.vercel.app", /\.deeme\.dev$/],
 });
 
 if (server.config.MONGODB_CONNECTION) {
