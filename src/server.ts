@@ -30,7 +30,10 @@ const server = fastify({
 await server.register(config);
 
 await server.register(cors, {
-  // put your options here
+  methods: ['POST', 'GET', 'PUT', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  origin: ["https://darkconfigs.vercel.app/", /\.deeme\.dev$/],
 });
 
 if (server.config.MONGODB_CONNECTION) {
