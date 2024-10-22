@@ -58,7 +58,7 @@ server.setNotFoundHandler(
       timeWindow: 500,
     }),
   },
-  function (request, reply) {
+  (request, reply) => {
     reply.code(404).send({ error: '404' });
   },
 );

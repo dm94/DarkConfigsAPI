@@ -1,8 +1,8 @@
 import { ConfigFileSchema } from '@/types/configfile';
-import { FastifyPluginAsync } from 'fastify';
-import { ConfigInfo, ConfigInfoSchema } from '@/types/configinfo';
+import type { FastifyPluginAsync } from 'fastify';
+import { type ConfigInfo, ConfigInfoSchema } from '@/types/configinfo';
 import { cleanConfig } from '@/utils/configcleaner';
-import { GetConfigRequest, TypeKarmaVote, UpdateKarmaRequest } from '@/types/requests/configs';
+import { type GetConfigRequest, TypeKarmaVote, type UpdateKarmaRequest } from '@/types/requests/configs';
 import { addDownloads } from '@/services/adddownload';
 import { Type } from '@sinclair/typebox';
 
@@ -47,10 +47,9 @@ const routes: FastifyPluginAsync = async (server) => {
             downloads: configInfo.downloads,
             features: configInfo.features
           });
-        } else {
-          return reply.code(404).send();
         }
 
+        return reply.code(404).send();
       } catch (error) {
         console.log(error);
         return reply.code(503).send({
@@ -182,11 +181,11 @@ const routes: FastifyPluginAsync = async (server) => {
             }}, { upsert: true });
           }
           return reply.code(200).send({});
-        } else {
-          return reply.code(400).send({
-            message: "Error: Config not found"
-          });
         }
+        
+        return reply.code(400).send({
+          message: "Error: Config not found"
+        });
       } catch (error) {
         console.log(error);
         return reply.code(503).send({
