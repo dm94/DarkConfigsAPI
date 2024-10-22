@@ -1,10 +1,10 @@
-import { ConfigFile } from '@/types/configfile';
-import { ConfigDTO } from '@/types/mongo/config';
-import { GetConfigsRequest, OrderByRequest, UploadConfigRequest } from '@/types/requests/configs';
+import type { ConfigFile } from '@/types/configfile';
+import type { ConfigDTO } from '@/types/mongo/config';
+import { type GetConfigsRequest, OrderByRequest, type UploadConfigRequest } from '@/types/requests/configs';
 import { cleanConfig, getEnabledFeatures } from '@/utils/configcleaner';
 import { Type } from '@sinclair/typebox';
-import { FastifyPluginAsync } from 'fastify';
-import { ConfigInfo, ConfigInfoSchema } from 'types/configinfo';
+import type { FastifyPluginAsync } from 'fastify';
+import { type ConfigInfo, ConfigInfoSchema } from 'types/configinfo';
 
 const routes: FastifyPluginAsync = async (server) => {
   server.get<GetConfigsRequest, { Reply: ConfigInfo[] }>(
@@ -68,7 +68,7 @@ const routes: FastifyPluginAsync = async (server) => {
         }
 
         let sort = {
-          "karma": -1
+          "karma": -1,
         };
 
         if (request.query.orderby) {

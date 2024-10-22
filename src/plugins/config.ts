@@ -1,7 +1,7 @@
 import "dotenv/config";
 import fp from "fastify-plugin";
-import { FastifyPluginAsync } from "fastify";
-import { Static, Type } from "@sinclair/typebox";
+import type { FastifyPluginAsync } from "fastify";
+import { type Static, Type } from "@sinclair/typebox";
 import Ajv from "ajv";
 
 export enum NodeEnv {
@@ -44,8 +44,7 @@ const configPlugin: FastifyPluginAsync = async (server) => {
   const valid = validate(process.env);
   if (!valid) {
     throw new Error(
-      ".env file validation failed - " +
-        JSON.stringify(validate.errors, null, 2)
+      `.env file validation failed - ${JSON.stringify(validate.errors, null, 2)}`
     );
   }
   server.decorate("config", process.env);
