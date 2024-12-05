@@ -1,4 +1,4 @@
-import { RequestGenericInterface } from 'fastify';
+import type { RequestGenericInterface } from "fastify";
 
 export interface UploadConfigRequest extends RequestGenericInterface {
   Body: {
@@ -12,7 +12,7 @@ export interface UploadConfigRequest extends RequestGenericInterface {
 export enum OrderByRequest {
   KARMA = "KARMA",
   DOWNLOADS = "DOWNLOADS",
-  NEWEST = "NEWEST"
+  NEWEST = "NEWEST",
 }
 
 export interface GetConfigsRequest extends RequestGenericInterface {
@@ -23,7 +23,6 @@ export interface GetConfigsRequest extends RequestGenericInterface {
     orderby?: OrderByRequest;
   };
 }
-
 
 export interface GetConfigRequest extends RequestGenericInterface {
   Params: {
@@ -37,10 +36,10 @@ export interface UpdateKarmaRequest extends RequestGenericInterface {
   };
   Querystring: {
     vote: string;
-  }
+  };
 }
 
 export enum TypeKarmaVote {
   UP = "UP",
-  DOWN = "DOWN"
+  DOWN = "DOWN",
 }

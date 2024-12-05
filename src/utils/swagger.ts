@@ -1,4 +1,4 @@
-import { version, description, author, homepage, bugs, name } from '../../package.json';
+import { version, description, author, homepage, bugs, name } from "../../package.json";
 
 export const schema = {
   openapi: {
@@ -14,16 +14,14 @@ export const schema = {
     externalDocs: {
       url: homepage,
     },
-    consumes: ['application/json'],
-    produces: ['application/json'],
-    tags: [
-      { name: 'examples', description: 'Examples' },
-    ],
+    consumes: ["application/json"],
+    produces: ["application/json"],
+    tags: [{ name: "examples", description: "Examples" }],
     securityDefinitions: {
       apiKey: {
-        type: 'apiKey',
-        name: 'apiKey',
-        in: 'header',
+        type: "apiKey",
+        name: "apiKey",
+        in: "header",
       },
     },
   },
