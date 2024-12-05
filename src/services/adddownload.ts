@@ -1,7 +1,7 @@
 export const addDownloads = async (server, request) => {
   try {
     if (!request.params.configid) {
-        return;
+      return;
     }
 
     const configId = request.params.configid;
@@ -9,18 +9,27 @@ export const addDownloads = async (server, request) => {
       return;
     }
 
-    const configCollection = server.mongo.client.db('dark').collection('configs');
+    const configCollection = server.mongo.client.db("dark").collection("configs");
     const idConfig = new server.mongo.ObjectId(configId);
 
     let downloads = 0;
-    const configInfo = await configCollection.findOne({ _id: idConfig }, { projection: { downloads: 1 } });
+    const configInfo = await configCollection.findOne(
+      { _id: idConfig },
+      { projection: { downloads: 1 } },
+    );
     if (configInfo) {
       downloads = configInfo.downloads;
-      await configCollection.updateOne({ _id: idConfig }, {$set: {
-        downloads: downloads + 1,
-      }}, { upsert: true });
+      await configCollection.updateOne(
+        { _id: idConfig },
+        {
+          $set: {
+            downloads: downloads + 1,
+          },
+        },
+        { upsert: true },
+      );
     }
   } catch (error) {
-      console.log(error);
+    console.log(error);
   }
-}
+};

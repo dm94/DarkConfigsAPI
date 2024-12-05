@@ -1,4 +1,4 @@
-import { ConfigFile } from "../configfile";
+import type { ConfigFile } from "../configfile";
 
 export type ConfigDTO = {
   id?: string;
@@ -9,4 +9,4 @@ export type ConfigDTO = {
   features: string[];
   config: ConfigFile;
   hidden?: boolean;
-}
+};

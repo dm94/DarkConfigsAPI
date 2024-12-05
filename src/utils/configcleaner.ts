@@ -1,8 +1,6 @@
 import type { ConfigFile, PluginInfo } from "@/types/configfile";
 
-export const unnecesaryFeatureInfo = [
-  "eu.darkbot.popcorn.def.UserAgentUpdater",
-];
+export const unnecesaryFeatureInfo = ["eu.darkbot.popcorn.def.UserAgentUpdater"];
 export const oldFeatures = [
   "com.deeme.modules.PallladiumHangar",
   "com.deeme.modules.PaladiumModule",
@@ -15,7 +13,7 @@ export const oldFeatures = [
   "eu.darkbot.leanon00.Main.Features.GGSpinner",
   "com.botorbit.darkplane.features.chaosalienmodule.ChaosAlienModule",
   "com.botorbit.darkplane.extrasplus.ExtrasPlus",
-  "com.pikapika.tasks.dispatch.Dispatch"
+  "com.pikapika.tasks.dispatch.Dispatch",
 ];
 
 export const oldModules = ["com.deemetool"];
@@ -45,7 +43,7 @@ export const leakInfoFromFeatues = [
   "com.pikapika.behaviour.gateSpinShipChanger.GateSpinShipChanger.GATE_HANGER",
   "com.pikapika.behaviour.gateSpinShipChanger.GateSpinShipChanger.SPIN_HANGER",
   "com.pikapika.behaviour.gateSpinShipChanger.GateSpinShipChanger.SPIN_PROFILE.HANGER",
-  "com.pikapika.behaviour.gateSpinShipChanger.GateSpinShipChanger.GATE_PROFILE.HANGER"
+  "com.pikapika.behaviour.gateSpinShipChanger.GateSpinShipChanger.GATE_PROFILE.HANGER",
 ];
 
 export const unnecesaryInfoFromFeatures = [
@@ -79,10 +77,7 @@ export const permitFeature = (key: string): boolean => {
   return true;
 };
 
-export const cleanConfig = (
-  config: ConfigFile,
-  language = "en",
-): ConfigFile => {
+export const cleanConfig = (config: ConfigFile, language = "en"): ConfigFile => {
   const configCopy = { ...config };
 
   delete configCopy?.["PLAYER_INFOS"];
@@ -90,7 +85,7 @@ export const cleanConfig = (
   delete configCopy?.["BOT_SETTINGS"]?.["BOT_GUI"]?.["MAIN_GUI_WINDOW"];
   delete configCopy?.["BOT_SETTINGS"]?.["BOT_GUI"]?.["CONFIG_GUI_WINDOW"];
   delete configCopy?.["BOT_SETTINGS"]?.["CUSTOM_BACKGROUND"]?.["IMAGE"];
-  
+
   if (configCopy?.["BOT_SETTINGS"]?.["BOT_GUI"]?.["LOCALE"]) {
     configCopy["BOT_SETTINGS"]["BOT_GUI"]["LOCALE"] = language;
   }
@@ -114,13 +109,8 @@ export const getEnabledFeatures = (config: ConfigFile): string[] => {
     }
 
     const pluginInfoValue: PluginInfo = pluginInfo[key];
-    if (
-      pluginInfoValue.ENABLED_FEATURES &&
-      pluginInfoValue.ENABLED_FEATURES.length > 0
-    ) {
-      const features = pluginInfoValue.ENABLED_FEATURES.filter((f) =>
-        permitFeature(f)
-      );
+    if (pluginInfoValue.ENABLED_FEATURES && pluginInfoValue.ENABLED_FEATURES.length > 0) {
+      const features = pluginInfoValue.ENABLED_FEATURES.filter((f) => permitFeature(f));
       enableFeatures = enableFeatures.concat(features);
     }
   }
@@ -145,13 +135,8 @@ export const cleanDisabledFeatures = (config: ConfigFile): ConfigFile => {
 
   for (const key of keys) {
     const pluginInfoValue: PluginInfo = pluginInfo[key];
-    if (
-      pluginInfoValue.ENABLED_FEATURES &&
-      pluginInfoValue.ENABLED_FEATURES.length > 0
-    ) {
-      const features = pluginInfoValue.ENABLED_FEATURES.filter((f) =>
-        permitFeature(f)
-      );
+    if (pluginInfoValue.ENABLED_FEATURES && pluginInfoValue.ENABLED_FEATURES.length > 0) {
+      const features = pluginInfoValue.ENABLED_FEATURES.filter((f) => permitFeature(f));
       enableFeatures = enableFeatures.concat(features);
       pluginInfoCopy[key] = {
         ENABLED_FEATURES: features,
@@ -175,12 +160,8 @@ export const cleanDisabledFeatures = (config: ConfigFile): ConfigFile => {
 
   const filteredKeys = customConfigsKeys.filter((key) => enableFeatures.includes(key));
 
-
   for (const key of filteredKeys) {
-    customConfigsCleaned[key] = cleanLeakInfoFromFeatures(
-      key,
-      customConfigs[key]
-    );
+    customConfigsCleaned[key] = cleanLeakInfoFromFeatures(key, customConfigs[key]);
   }
 
   configCopy["CUSTOM_CONFIGS"] = customConfigsCleaned;
@@ -188,10 +169,7 @@ export const cleanDisabledFeatures = (config: ConfigFile): ConfigFile => {
   return configCopy;
 };
 
-export const cleanLeakInfoFromFeatures = (
-  featureKey: string,
-  feature: unknown
-): unknown => {
+export const cleanLeakInfoFromFeatures = (featureKey: string, feature: unknown): unknown => {
   if (!featureKey || !feature || typeof feature !== "object") {
     return feature;
   }
@@ -205,10 +183,7 @@ export const cleanLeakInfoFromFeatures = (
   for (const key of keys) {
     const fullKey = `${featureKey}.${key}`;
 
-    if (
-      leakInfoFromFeatues.includes(fullKey) ||
-      unnecesaryInfoFromFeatures.includes(fullKey)
-    ) {
+    if (leakInfoFromFeatues.includes(fullKey) || unnecesaryInfoFromFeatures.includes(fullKey)) {
       return;
     }
 

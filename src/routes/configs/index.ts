@@ -1,41 +1,45 @@
-import type { ConfigFile } from '@/types/configfile';
-import type { ConfigDTO } from '@/types/mongo/config';
-import { type GetConfigsRequest, OrderByRequest, type UploadConfigRequest } from '@/types/requests/configs';
-import { cleanConfig, getEnabledFeatures } from '@/utils/configcleaner';
-import { Type } from '@sinclair/typebox';
-import type { FastifyPluginAsync } from 'fastify';
-import { type ConfigInfo, ConfigInfoSchema } from 'types/configinfo';
+import type { ConfigFile } from "@/types/configfile";
+import type { ConfigDTO } from "@/types/mongo/config";
+import {
+  type GetConfigsRequest,
+  OrderByRequest,
+  type UploadConfigRequest,
+} from "@/types/requests/configs";
+import { cleanConfig, getEnabledFeatures } from "@/utils/configcleaner";
+import { Type } from "@sinclair/typebox";
+import type { FastifyPluginAsync } from "fastify";
+import { type ConfigInfo, ConfigInfoSchema } from "types/configinfo";
 
 const routes: FastifyPluginAsync = async (server) => {
   server.get<GetConfigsRequest, { Reply: ConfigInfo[] }>(
-    '/',
+    "/",
     {
       schema: {
-        description: 'Return the list of the config',
-        summary: 'getConfigs',
-        operationId: 'getConfigs',
-        tags: ['configs'],
+        description: "Return the list of the config",
+        summary: "getConfigs",
+        operationId: "getConfigs",
+        tags: ["configs"],
         querystring: {
-          type: 'object',
+          type: "object",
           required: [],
           properties: {
             size: {
-              type: 'integer',
+              type: "integer",
               default: 10,
             },
             page: {
-              type: 'integer',
+              type: "integer",
               default: 1,
             },
             search: {
-              type: 'string',
-              description: 'Search by name, description or feature',
+              type: "string",
+              description: "Search by name, description or feature",
             },
             orderby: {
-              type: 'string',
-              description: 'Order by karma, newest or downloads',
+              type: "string",
+              description: "Order by karma, newest or downloads",
               enum: Object.values(OrderByRequest),
-              default: OrderByRequest.KARMA
+              default: OrderByRequest.KARMA,
             },
           },
         },
@@ -46,7 +50,7 @@ const routes: FastifyPluginAsync = async (server) => {
     },
     async (request, reply) => {
       try {
-        const configCollection = server.mongo.client.db('dark').collection('configs');
+        const configCollection = server.mongo.client.db("dark").collection("configs");
 
         let limit = 10;
         const MAX_LIMIT = 20;
@@ -55,42 +59,49 @@ const routes: FastifyPluginAsync = async (server) => {
         if (request.query.size) {
           limit = request.query.size;
         }
-        if (limit > MAX_LIMIT) {
-          limit = MAX_LIMIT;
-        }
+        limit = Math.min(limit, MAX_LIMIT);
+
 
         if (request.query.page) {
           page = request.query.page;
         }
 
         if (page > 0) {
-          page = page - 1;
+          page -= 1;
         }
 
         let sort = {
-          "karma": -1,
+          karma: -1,
         };
 
         if (request.query.orderby) {
-          if (request.query.orderby=== OrderByRequest.DOWNLOADS) {
-            sort = { "downloads": -1 };
+          if (request.query.orderby === OrderByRequest.DOWNLOADS) {
+            sort = { downloads: -1 };
           } else if (request.query.orderby === OrderByRequest.NEWEST) {
-            sort = { "_id": -1 };
-          }  else if (request.query.orderby === OrderByRequest.KARMA) {
-            sort = { "karma": -1 };
+            sort = { _id: -1 };
+          } else if (request.query.orderby === OrderByRequest.KARMA) {
+            sort = { karma: -1 };
           }
         }
 
         const filterQuery = {};
         if (request.query.search) {
-          filterQuery["$text"] = { $search: request.query.search }
+          filterQuery["$text"] = { $search: request.query.search };
         }
 
-        filterQuery["$or"] = [ { hidden: { $exists: true, $nin: [ true ] } }, { hidden: { $exists: false } } ];
+        filterQuery["$or"] = [
+          { hidden: { $exists: true, $nin: [true] } },
+          { hidden: { $exists: false } },
+        ];
 
         const data = await configCollection
-        .find(filterQuery, { projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 } }).skip(page * limit).limit(limit).sort(sort)
-        .toArray();
+          .find(filterQuery, {
+            projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 },
+          })
+          .skip(page * limit)
+          .limit(limit)
+          .sort(sort)
+          .toArray();
 
         const response: ConfigInfo[] = data.map((item) => {
           return {
@@ -100,40 +111,40 @@ const routes: FastifyPluginAsync = async (server) => {
             karma: item.karma,
             downloads: item.downloads,
             features: item.features,
-          }
+          };
         });
 
         return reply.code(200).send(response);
       } catch (error) {
         console.log(error);
         return reply.code(503).send({
-          message: "Error: Internal error"
+          message: "Error: Internal error",
         });
       }
     },
   );
   server.post<UploadConfigRequest>(
-    '/',
+    "/",
     {
       config: {
         rateLimit: {
           max: 2,
-          timeWindow: '1 minute'
-        }
+          timeWindow: "1 minute",
+        },
       },
       schema: {
-        description: 'Add a new config',
-        summary: 'uploadConfigFile',
-        operationId: 'uploadConfigFile',
-        tags: ['configs'],
+        description: "Add a new config",
+        summary: "uploadConfigFile",
+        operationId: "uploadConfigFile",
+        tags: ["configs"],
         body: {
-            type: 'object',
-            properties: {
-              name: { type: 'string' },
-              description: { type: 'string' },
-              config: { type: "object" },
-              hidden: { type: "boolean" },
-            },
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            description: { type: "string" },
+            config: { type: "object" },
+            hidden: { type: "boolean" },
+          },
         },
         response: {
           201: ConfigInfoSchema,
@@ -143,7 +154,7 @@ const routes: FastifyPluginAsync = async (server) => {
     async (request, reply) => {
       if (!request?.body) {
         return reply.code(400).send({
-          message: "Missing valid config"
+          message: "Missing valid config",
         });
       }
 
@@ -154,7 +165,7 @@ const routes: FastifyPluginAsync = async (server) => {
 
         if (!configCleaned || Object.keys(configCleaned).length <= 3) {
           return reply.code(400).send({
-            message: "Missing valid config"
+            message: "Missing valid config",
           });
         }
 
@@ -177,23 +188,23 @@ const routes: FastifyPluginAsync = async (server) => {
           features: getEnabledFeatures(configCleaned),
           config: configCleaned,
           hidden: request.body.hidden ?? false,
-        }
+        };
 
-        const configCollection = server.mongo.client.db('dark').collection('configs');
+        const configCollection = server.mongo.client.db("dark").collection("configs");
         const result = await configCollection.insertOne(dataToUpload);
 
         return reply.code(201).send({
-          configId: result.insertedId.toString(), 
+          configId: result.insertedId.toString(),
           name: dataToUpload.name,
           description: dataToUpload.description,
           karma: dataToUpload.karma,
           downloads: dataToUpload.downloads,
-          features:  dataToUpload.features,
-          hidden:  dataToUpload.hidden ?? false,
+          features: dataToUpload.features,
+          hidden: dataToUpload.hidden ?? false,
         });
       } catch {
         return reply.code(503).send({
-          message: "Error: Internal error"
+          message: "Error: Internal error",
         });
       }
     },

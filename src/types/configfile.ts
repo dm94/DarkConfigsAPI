@@ -2,8 +2,8 @@ import { Type } from "@sinclair/typebox";
 
 export type PluginInfo = {
   DISABLED_FEATURES?: string[];
-  ENABLED_FEATURES?:  string[];
-}
+  ENABLED_FEATURES?: string[];
+};
 
 export interface BotGUI {
   LOCALE?: string;
@@ -22,7 +22,7 @@ export type BotSettings = {
   MAP_DISPLAY?: unknown;
   CUSTOM_BACKGROUND?: unknown;
   OTHER?: unknown;
-}
+};
 
 export type ConfigFile = {
   AVOIDED?: unknown;
@@ -31,8 +31,8 @@ export type ConfigFile = {
   PLAYER_INFOS?: unknown;
   PLAYER_TAGS?: string[];
   CUSTOM_CONFIGS?: unknown;
-  PLUGIN_INFOS?: { 
-    [key: string]: PluginInfo 
+  PLUGIN_INFOS?: {
+    [key: string]: PluginInfo;
   };
   GENERAL?: unknown;
   COLLECT?: unknown;
@@ -42,7 +42,7 @@ export type ConfigFile = {
   MISCELLANEOUS?: unknown;
   BOT_SETTINGS?: BotSettings;
   EXTRA?: unknown;
-}
+};
 
 export const ConfigFileSchema = Type.Object({
   AVOIDED: Type.Optional(Type.Any()),
