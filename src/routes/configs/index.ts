@@ -59,9 +59,8 @@ const routes: FastifyPluginAsync = async (server) => {
         if (request.query.size) {
           limit = request.query.size;
         }
-        if (limit > MAX_LIMIT) {
-          limit = MAX_LIMIT;
-        }
+        limit = Math.min(limit, MAX_LIMIT);
+
 
         if (request.query.page) {
           page = request.query.page;
