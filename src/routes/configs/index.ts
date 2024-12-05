@@ -67,7 +67,7 @@ const routes: FastifyPluginAsync = async (server) => {
         }
 
         if (page > 0) {
-          page = page - 1;
+          page -= 1;
         }
 
         let sort = {
