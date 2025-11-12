@@ -18,11 +18,7 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "keywords": [
-    "nodejs",
-    "fastify",
-    "typescript"
-  ],
+  "keywords": ["nodejs", "fastify", "typescript"],
   "author": "Dm94Dani",
   "bugs": {
     "url": "https://github.com/dm94/DarkConfigsAPI/issues"
@@ -38,6 +34,7 @@
     "@fastify/swagger-ui": "^5.2.0",
     "@sinclair/typebox": "^0.34.9",
     "ajv": "^8.16.0",
+    "discord-oauth2": "^2.12.1",
     "dotenv": "^16.4.5",
     "env-schema": "^5.2.1",
     "fastify": "^5.1.0",

@@ -5,13 +5,12 @@ const routes: FastifyPluginAsync = async (server) => {
   server.get(
     "/",
     {
-      preHandler: [server.authenticate],
+      onRequest: [server.authenticate],
       schema: {
         description: "Get current user profile",
         summary: "getMe",
         operationId: "getMe",
         tags: ["users"],
-        security: [{ bearerAuth: [] }],
         response: {
           200: Type.Object({
             userId: Type.String(),
@@ -41,13 +40,12 @@ const routes: FastifyPluginAsync = async (server) => {
   server.get(
     "/configs",
     {
-      preHandler: [server.authenticate],
+      onRequest: [server.authenticate],
       schema: {
         description: "List configs of current user",
         summary: "getMyConfigs",
         operationId: "getMyConfigs",
         tags: ["users"],
-        security: [{ bearerAuth: [] }],
         response: {
           200: Type.Array(
             Type.Object({
@@ -67,9 +65,20 @@ const routes: FastifyPluginAsync = async (server) => {
       const configs = server.mongo.client.db("dark").collection("configs");
       const userId = (request.user as any)?.userId as string;
       const cursor = configs
-        .find({ ownerId: new server.mongo.ObjectId(userId) }, {
-          projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1, hidden: 1 },
-        })
+        .find(
+          { ownerId: new server.mongo.ObjectId(userId) },
+          {
+            projection: {
+              _id: 1,
+              name: 1,
+              description: 1,
+              karma: 1,
+              downloads: 1,
+              features: 1,
+              hidden: 1,
+            },
+          },
+        )
         .sort({ _id: -1 });
       const items = await cursor.toArray();
       const result = [] as any[];

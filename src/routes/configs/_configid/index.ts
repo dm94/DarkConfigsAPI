@@ -223,13 +223,12 @@ const routes: FastifyPluginAsync = async (server) => {
   server.delete<GetConfigRequest>(
     "/",
     {
-      preHandler: [server.authenticate],
+      onRequest: [server.authenticate],
       schema: {
         description: "Delete config by id (owner only)",
         summary: "deleteConfig",
         operationId: "deleteConfig",
         tags: ["configs"],
-        security: [{ bearerAuth: [] }],
         params: {
           type: "object",
           properties: {

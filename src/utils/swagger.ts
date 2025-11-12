@@ -17,13 +17,6 @@ export const schema = {
     consumes: ["application/json"],
     produces: ["application/json"],
     tags: [{ name: "examples", description: "Examples" }],
-    securityDefinitions: {
-      bearerAuth: {
-        type: "http",
-        scheme: "bearer",
-        bearerFormat: "JWT",
-      },
-    },
   },
   hideUntagged: true,
 };

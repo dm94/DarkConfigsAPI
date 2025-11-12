@@ -51,6 +51,18 @@ await server.register(rateLimit, {
   allowList: [],
 });
 
+await server.register(jwt, {
+  secret: server.config.JWT_SECRET,
+});
+
+server.decorate("authenticate", async (request, reply) => {
+  try {
+    await request.jwtVerify();
+  } catch {
+    reply.code(401).send({ message: "Unauthorized" });
+  }
+});
+
 /* 404 error handling */
 server.setNotFoundHandler(
   {
@@ -81,14 +93,3 @@ if (server.config.NODE_ENV === NodeEnv.development) {
 }
 
 export default server;
-await server.register(jwt, {
-  secret: server.config.JWT_SECRET,
-});
-
-server.decorate("authenticate", async (request, reply) => {
-  try {
-    await request.jwtVerify();
-  } catch {
-    reply.code(401).send({ message: "Unauthorized" });
-  }
-});

@@ -61,7 +61,6 @@ const routes: FastifyPluginAsync = async (server) => {
         }
         limit = Math.min(limit, MAX_LIMIT);
 
-
         if (request.query.page) {
           page = request.query.page;
         }
@@ -126,7 +125,7 @@ const routes: FastifyPluginAsync = async (server) => {
   server.post<UploadConfigRequest>(
     "/",
     {
-      preHandler: [server.authenticate],
+      onRequest: [server.authenticate],
       config: {
         rateLimit: {
           max: 2,
@@ -138,7 +137,6 @@ const routes: FastifyPluginAsync = async (server) => {
         summary: "uploadConfigFile",
         operationId: "uploadConfigFile",
         tags: ["configs"],
-        security: [{ bearerAuth: [] }],
         body: {
           type: "object",
           properties: {
