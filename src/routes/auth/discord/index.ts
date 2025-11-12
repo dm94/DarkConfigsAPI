@@ -3,14 +3,14 @@ import type { FastifyPluginAsync } from "fastify";
 
 const routes: FastifyPluginAsync = async (server) => {
   server.post(
-    "/callback",
+    "/",
     {
       schema: {
         description: "Discord OAuth callback",
         summary: "discordCallback",
         operationId: "discordCallback",
         tags: ["auth"],
-        querystring: {
+        body: {
           type: "object",
           required: ["code"],
           properties: {
@@ -41,7 +41,7 @@ const routes: FastifyPluginAsync = async (server) => {
     },
     async (request, reply) => {
       try {
-        const { code } = request.query as { code: string; state: string };
+        const { code } = request.body as { code: string };
 
         const accessToken = await getAccessToken(code);
 
