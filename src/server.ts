@@ -6,6 +6,7 @@ import autoLoad from "@fastify/autoload";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import mongodb from "@fastify/mongodb";
+import jwt from "@fastify/jwt";
 import { schema } from "./utils/swagger";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -80,3 +81,14 @@ if (server.config.NODE_ENV === NodeEnv.development) {
 }
 
 export default server;
+await server.register(jwt, {
+  secret: server.config.JWT_SECRET,
+});
+
+server.decorate("authenticate", async (request, reply) => {
+  try {
+    await request.jwtVerify();
+  } catch {
+    reply.code(401).send({ message: "Unauthorized" });
+  }
+});

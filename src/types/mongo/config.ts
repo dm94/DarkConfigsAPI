@@ -2,6 +2,7 @@ import type { ConfigFile } from "../configfile";
 
 export type ConfigDTO = {
   id?: string;
+  ownerId?: string;
   name: string;
   description?: string;
   karma: number;

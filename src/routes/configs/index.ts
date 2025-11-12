@@ -126,6 +126,7 @@ const routes: FastifyPluginAsync = async (server) => {
   server.post<UploadConfigRequest>(
     "/",
     {
+      preHandler: [server.authenticate],
       config: {
         rateLimit: {
           max: 2,
@@ -137,6 +138,7 @@ const routes: FastifyPluginAsync = async (server) => {
         summary: "uploadConfigFile",
         operationId: "uploadConfigFile",
         tags: ["configs"],
+        security: [{ bearerAuth: [] }],
         body: {
           type: "object",
           properties: {
@@ -188,10 +190,15 @@ const routes: FastifyPluginAsync = async (server) => {
           features: getEnabledFeatures(configCleaned),
           config: configCleaned,
           hidden: request.body.hidden ?? false,
+          ownerId: (request.user as any)?.userId,
         };
 
         const configCollection = server.mongo.client.db("dark").collection("configs");
-        const result = await configCollection.insertOne(dataToUpload);
+        const payload = {
+          ...dataToUpload,
+          ownerId: new server.mongo.ObjectId(dataToUpload.ownerId),
+        } as any;
+        const result = await configCollection.insertOne(payload);
 
         return reply.code(201).send({
           configId: result.insertedId.toString(),

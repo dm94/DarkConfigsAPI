@@ -25,6 +25,11 @@ const ConfigSchema = Type.Object({
   API_HOST: Type.String(),
   API_PORT: Type.String(),
   MONGODB_CONNECTION: Type.Optional(Type.String()),
+  DISCORD_CLIENT_ID: Type.String(),
+  DISCORD_CLIENT_SECRET: Type.String(),
+  DISCORD_REDIRECT_URI: Type.String(),
+  JWT_SECRET: Type.String(),
+  WEB_APP_URL: Type.String(),
 });
 
 const ajv = new Ajv({
