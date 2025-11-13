@@ -95,7 +95,15 @@ const routes: FastifyPluginAsync = async (server) => {
 
         const data = await configCollection
           .find(filterQuery, {
-            projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 },
+            projection: {
+              _id: 1,
+              name: 1,
+              description: 1,
+              karma: 1,
+              downloads: 1,
+              features: 1,
+              ownerId: 1,
+            },
           })
           .skip(page * limit)
           .limit(limit)
@@ -110,6 +118,7 @@ const routes: FastifyPluginAsync = async (server) => {
             karma: item.karma,
             downloads: item.downloads,
             features: item.features,
+            ownerId: item.ownerId,
           };
         });
 
@@ -188,7 +197,7 @@ const routes: FastifyPluginAsync = async (server) => {
           features: getEnabledFeatures(configCleaned),
           config: configCleaned,
           hidden: request.body.hidden ?? false,
-          ownerId: (request.user as any)?.userId,
+          ownerId: (request.user as unknown as { userId: string })?.userId,
         };
 
         const configCollection = server.mongo.client.db("dark").collection("configs");
@@ -206,6 +215,7 @@ const routes: FastifyPluginAsync = async (server) => {
           downloads: dataToUpload.downloads,
           features: dataToUpload.features,
           hidden: dataToUpload.hidden ?? false,
+          ownerId: dataToUpload.ownerId,
         });
       } catch {
         return reply.code(503).send({

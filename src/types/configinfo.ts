@@ -8,6 +8,7 @@ export const ConfigInfoSchema = Type.Object({
   downloads: Type.Integer(),
   features: Type.Array(Type.String()),
   hidden: Type.Optional(Type.Boolean()),
+  ownerId: Type.Optional(Type.String()),
 });
 
 export type ConfigInfo = Static<typeof ConfigInfoSchema>;

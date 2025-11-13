@@ -43,7 +43,17 @@ const routes: FastifyPluginAsync = async (server) => {
 
         const configInfo = await configCollection.findOne(
           { _id: idConfig },
-          { projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 } },
+          {
+            projection: {
+              _id: 1,
+              name: 1,
+              description: 1,
+              karma: 1,
+              downloads: 1,
+              features: 1,
+              ownerId: 1,
+            },
+          },
         );
 
         if (configInfo) {
@@ -54,6 +64,7 @@ const routes: FastifyPluginAsync = async (server) => {
             karma: configInfo.karma,
             downloads: configInfo.downloads,
             features: configInfo.features,
+            ownerId: configInfo.ownerId,
           });
         }
 
