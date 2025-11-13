@@ -61,7 +61,6 @@ const routes: FastifyPluginAsync = async (server) => {
         }
         limit = Math.min(limit, MAX_LIMIT);
 
-
         if (request.query.page) {
           page = request.query.page;
         }
@@ -96,7 +95,15 @@ const routes: FastifyPluginAsync = async (server) => {
 
         const data = await configCollection
           .find(filterQuery, {
-            projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 },
+            projection: {
+              _id: 1,
+              name: 1,
+              description: 1,
+              karma: 1,
+              downloads: 1,
+              features: 1,
+              ownerId: 1,
+            },
           })
           .skip(page * limit)
           .limit(limit)
@@ -111,6 +118,7 @@ const routes: FastifyPluginAsync = async (server) => {
             karma: item.karma,
             downloads: item.downloads,
             features: item.features,
+            ownerId: item.ownerId,
           };
         });
 
@@ -126,6 +134,7 @@ const routes: FastifyPluginAsync = async (server) => {
   server.post<UploadConfigRequest>(
     "/",
     {
+      onRequest: [server.authenticate],
       config: {
         rateLimit: {
           max: 2,
@@ -188,10 +197,15 @@ const routes: FastifyPluginAsync = async (server) => {
           features: getEnabledFeatures(configCleaned),
           config: configCleaned,
           hidden: request.body.hidden ?? false,
+          ownerId: (request.user as unknown as { userId: string })?.userId,
         };
 
         const configCollection = server.mongo.client.db("dark").collection("configs");
-        const result = await configCollection.insertOne(dataToUpload);
+        const payload = {
+          ...dataToUpload,
+          ownerId: new server.mongo.ObjectId(dataToUpload.ownerId),
+        } as any;
+        const result = await configCollection.insertOne(payload);
 
         return reply.code(201).send({
           configId: result.insertedId.toString(),
@@ -201,6 +215,7 @@ const routes: FastifyPluginAsync = async (server) => {
           downloads: dataToUpload.downloads,
           features: dataToUpload.features,
           hidden: dataToUpload.hidden ?? false,
+          ownerId: dataToUpload.ownerId,
         });
       } catch {
         return reply.code(503).send({

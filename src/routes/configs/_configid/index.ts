@@ -9,6 +9,7 @@ import {
 } from "@/types/requests/configs";
 import { addDownloads } from "@/services/adddownload";
 import { Type } from "@sinclair/typebox";
+import type { UserTokenInfo } from "@/types/token";
 
 const routes: FastifyPluginAsync = async (server) => {
   server.get<GetConfigRequest, { Reply: ConfigInfo }>(
@@ -42,7 +43,17 @@ const routes: FastifyPluginAsync = async (server) => {
 
         const configInfo = await configCollection.findOne(
           { _id: idConfig },
-          { projection: { _id: 1, name: 1, description: 1, karma: 1, downloads: 1, features: 1 } },
+          {
+            projection: {
+              _id: 1,
+              name: 1,
+              description: 1,
+              karma: 1,
+              downloads: 1,
+              features: 1,
+              ownerId: 1,
+            },
+          },
         );
 
         if (configInfo) {
@@ -53,6 +64,7 @@ const routes: FastifyPluginAsync = async (server) => {
             karma: configInfo.karma,
             downloads: configInfo.downloads,
             features: configInfo.features,
+            ownerId: configInfo.ownerId,
           });
         }
 
@@ -217,6 +229,43 @@ const routes: FastifyPluginAsync = async (server) => {
           message: "Error: Internal error",
         });
       }
+    },
+  );
+  server.delete<GetConfigRequest>(
+    "/",
+    {
+      onRequest: [server.authenticate],
+      schema: {
+        description: "Delete config by id (owner only)",
+        summary: "deleteConfig",
+        operationId: "deleteConfig",
+        tags: ["configs"],
+        params: {
+          type: "object",
+          properties: {
+            configid: { type: "string" },
+          },
+        },
+        response: { 200: Type.Object({}) },
+      },
+    },
+    async (request, reply) => {
+      if (!request.params.configid) {
+        return reply.code(400).send({ message: "Error: Missing Config ID" });
+      }
+      const configCollection = server.mongo.client.db("dark").collection("configs");
+      const idConfig = new server.mongo.ObjectId(request.params.configid);
+      const doc = await configCollection.findOne({ _id: idConfig }, { projection: { ownerId: 1 } });
+      if (!doc) {
+        return reply.code(404).send({ message: "Error: Config not found" });
+      }
+      const userId = (request.user as UserTokenInfo)?.userId;
+      const isOwner = doc.ownerId?.toString() === userId;
+      if (!isOwner) {
+        return reply.code(403).send({ message: "Forbidden" });
+      }
+      await configCollection.deleteOne({ _id: idConfig });
+      return reply.code(200).send({});
     },
   );
 };

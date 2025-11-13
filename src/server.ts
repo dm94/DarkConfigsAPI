@@ -6,6 +6,7 @@ import autoLoad from "@fastify/autoload";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import mongodb from "@fastify/mongodb";
+import jwt from "@fastify/jwt";
 import { schema } from "./utils/swagger";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -30,7 +31,7 @@ const server = fastify({
 await server.register(config);
 
 await server.register(cors, {
-  methods: ["POST", "GET", "PUT", "OPTIONS"],
+  methods: ["POST", "GET", "PUT", "OPTIONS", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
   origin: ["https://darkconfigs.vercel.app", /\.deeme\.dev$/],
@@ -48,6 +49,18 @@ await server.register(rateLimit, {
   max: 100,
   timeWindow: "1 minute",
   allowList: [],
+});
+
+await server.register(jwt, {
+  secret: server.config.JWT_SECRET,
+});
+
+server.decorate("authenticate", async (request, reply) => {
+  try {
+    await request.jwtVerify();
+  } catch {
+    reply.code(401).send({ message: "Unauthorized" });
+  }
 });
 
 /* 404 error handling */

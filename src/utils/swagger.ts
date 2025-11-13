@@ -17,13 +17,6 @@ export const schema = {
     consumes: ["application/json"],
     produces: ["application/json"],
     tags: [{ name: "examples", description: "Examples" }],
-    securityDefinitions: {
-      apiKey: {
-        type: "apiKey",
-        name: "apiKey",
-        in: "header",
-      },
-    },
   },
   hideUntagged: true,
 };
