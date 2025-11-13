@@ -1,5 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
 import { Type } from "@sinclair/typebox";
+import type { UserTokenInfo } from "@/types/token";
+import type { ConfigInfo } from "@/types/configinfo";
 
 const routes: FastifyPluginAsync = async (server) => {
   server.get(
@@ -18,12 +20,15 @@ const routes: FastifyPluginAsync = async (server) => {
             username: Type.String(),
             avatar: Type.Optional(Type.String()),
           }),
+          404: Type.Object({
+            message: Type.String(),
+          }),
         },
       },
     },
     async (request, reply) => {
       const users = server.mongo.client.db("dark").collection("users");
-      const userId = (request.user as any)?.userId as string;
+      const userId = (request.user as UserTokenInfo)?.userId;
       const doc = await users.findOne({ _id: new server.mongo.ObjectId(userId) });
       if (!doc) {
         return reply.code(404).send();
@@ -63,7 +68,7 @@ const routes: FastifyPluginAsync = async (server) => {
     },
     async (request, reply) => {
       const configs = server.mongo.client.db("dark").collection("configs");
-      const userId = (request.user as any)?.userId as string;
+      const userId = (request.user as UserTokenInfo)?.userId;
       const cursor = configs
         .find(
           { ownerId: new server.mongo.ObjectId(userId) },
@@ -76,12 +81,13 @@ const routes: FastifyPluginAsync = async (server) => {
               downloads: 1,
               features: 1,
               hidden: 1,
+              ownerId: 1,
             },
           },
         )
         .sort({ _id: -1 });
       const items = await cursor.toArray();
-      const result = [] as any[];
+      const result = [] as ConfigInfo[];
       for (const item of items) {
         result.push({
           configId: item._id.toString(),
@@ -91,6 +97,7 @@ const routes: FastifyPluginAsync = async (server) => {
           downloads: item.downloads,
           features: item.features,
           hidden: item.hidden,
+          ownerId: item.ownerId,
         });
       }
       return reply.code(200).send(result);

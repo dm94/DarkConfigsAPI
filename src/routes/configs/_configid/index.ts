@@ -259,7 +259,7 @@ const routes: FastifyPluginAsync = async (server) => {
       if (!doc) {
         return reply.code(404).send({ message: "Error: Config not found" });
       }
-      const userId = (request.user as UserTokenInfo)?.userId as string;
+      const userId = (request.user as UserTokenInfo)?.userId;
       const isOwner = doc.ownerId?.toString() === userId;
       if (!isOwner) {
         return reply.code(403).send({ message: "Forbidden" });

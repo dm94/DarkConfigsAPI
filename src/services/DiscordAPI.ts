@@ -1,4 +1,4 @@
-import DiscordOauth2 from 'discord-oauth2';
+import DiscordOauth2 from "discord-oauth2";
 
 export const getAccessToken = async (code: string, extra?: object) => {
   const oauth = new DiscordOauth2();
@@ -15,8 +15,8 @@ export const getAccessToken = async (code: string, extra?: object) => {
     clientId: process.env.DISCORD_CLIENT_ID,
     clientSecret: process.env.DISCORD_CLIENT_SECRET,
     code: code,
-    scope: 'identify guilds',
-    grantType: 'authorization_code',
+    scope: "identify guilds",
+    grantType: "authorization_code",
     redirectUri: process.env.DISCORD_REDIRECT_URL,
   };
 
@@ -31,8 +31,8 @@ export const getAccessToken = async (code: string, extra?: object) => {
     //@ts-ignore
     return await oauth.tokenRequest(data);
   } catch (e) {
-    console.log('Error', e);
-    return null;
+    console.log("Error", e);
+    return undefined;
   }
 };
 
@@ -41,17 +41,7 @@ export const getUser = async (accessToken: string) => {
 
   try {
     return await oauth.getUser(accessToken);
-  } catch (_e) {
-    return null;
-  }
-};
-
-export const getGuilds = async (accessToken: string) => {
-  const oauth = new DiscordOauth2();
-
-  try {
-    return await oauth.getUserGuilds(accessToken);
-  } catch (_e) {
-    return null;
+  } catch {
+    return undefined;
   }
 };
