@@ -7,7 +7,7 @@
     "lint": "biome lint --write ./src",
     "format": "biome format --write ./src",
     "check:types": "tsc --noEmit",
-    "build": "esbuild `find src \\( -name '*.ts' \\)` --platform=node --outdir=build --resolve-extensions=.js",
+    "build": "esbuild `find src \\( -name '*.ts' \\)` --bundle --splitting --format=esm --platform=node --packages=external --outdir=build",
     "build:docker:prod": "docker build . -t my-fastify-app --build-arg APP_ENV=production",
     "start": "node build",
     "dev": "tsx watch src .env | pino-pretty --colorize",
